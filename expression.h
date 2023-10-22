@@ -40,17 +40,18 @@ expr_t *parse_expr(const char *str, size_t length);
 void debug_print_expr(expr_t *e, int depth);
 void delete_expr(expr_t *e);
 
-// expr_t *init_expr(int type, ...);
-
 // Evaluation of Expression
 //
 typedef struct
 {
-	uint32_t value;
-	int count;
-	char vars[26];
+	uint32_t value;	// Values of the different variables stored as bits
+	int count;	// holds the number of variables in system
+	char vars[26];  // hashmap, index is offset by 'A',
+			// stores the order of discovery
 } env_t;
 
+// NOTE: the variables are discovered during evaluation and not during parsing
+// although it would probably make more sense to do it during parsing.
 int eval_expr(expr_t *e, env_t *x);
 
 #endif // _EXPRESSION_H_
