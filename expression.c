@@ -50,6 +50,11 @@ static expr_t *init_expr(int type, ...)
 			e->type = NOT;
 			e->not.lhs = va_arg(v, expr_t *);
 			break;
+
+		case PAREN:
+			e->type = PAREN;
+			e->paren.eval = va_arg(v, expr_t *);
+			break;
 	}
 
 	va_end(v);
@@ -65,12 +70,32 @@ void delete_expr(expr_t *e)
 		delete_expr(e->and.lhs);
 		delete_expr(e->and.rhs);
 	}
-	if(e->type == NOT)
+	if(e->type == NOT || e->type == PAREN)
 	{
 		delete_expr(e->and.lhs);
 	}
 
 	free(e);
+}
+
+static expr_t *__parse_expr(expr_t *e,
+		const char *str, size_t length, size_t *current);
+static expr_t *__parse_paren(const char *str, size_t length, size_t *current)
+{
+	expr_t *head = 0;
+	char c = 0;
+
+	while(*current < length)
+	{
+		c = next_token(str, length, current);
+		if(c == ')')
+			break;
+		*current -= 1;
+
+		head = __parse_expr(head, str, length, current);
+	}
+
+	return head;
 }
 
 static expr_t *__parse_expr(expr_t *e,
@@ -99,6 +124,7 @@ static expr_t *__parse_expr(expr_t *e,
 					*current -= 1; // unreading a token
 					e->and.rhs = __parse_expr(e->and.rhs, str, length, current);
 					return e;
+
 				default:
 					return init_expr(NOT, e);
 			}
@@ -116,11 +142,12 @@ static expr_t *__parse_expr(expr_t *e,
 
 		case '+':
 			return init_expr(OR, e, __parse_expr(e, str, length, current));
-			break;
 
+		case '(':
+			return init_expr(PAREN, __parse_paren(str, length, current));
 	}
 
-	fprintf(stderr, "Undefined Token Encountered!");
+	fprintf(stderr, "Undefined Token (%c : %d) Encountered!\n", c, c);
 	exit(1);
 }
 
@@ -156,6 +183,12 @@ void debug_print_expr(expr_t *e, int depth)
 			printf("'\n");
 			debug_print_expr(e->and.lhs, depth + 1);
 			break;
+
+		case PAREN:
+			printf("(\n");
+			debug_print_expr(e->paren.eval, depth + 1);
+			printf("%.*s)\n", depth, SPACES);
+			break;
 	}
 }
 
@@ -182,8 +215,11 @@ int eval_expr(expr_t *e, env_t *x)
 	{
 		case VARIABLE:
 			if(x->vars[e->variable - 'A'] == -1)
-				x->vars[e->variable - 'A'] = 0;
-			return x->vars[e->variable - 'A'];
+			{
+				x->vars[e->variable - 'A'] = x->count;
+				x->count++;
+			}
+			return (x->value >> x->vars[e->variable - 'A']) & 1;
 
 		case LITERAL:
 			return e->literal - '0';
@@ -192,10 +228,18 @@ int eval_expr(expr_t *e, env_t *x)
 			return !eval_expr(e->not.lhs, x);
 
 		case AND:
-			return eval_expr(e->and.lhs, x) && eval_expr(e->and.rhs, x);
+			{
+				int e1 = eval_expr(e->and.lhs, x);
+				int e2 = eval_expr(e->and.rhs, x);
+				return e1 && e2;
+			}
 
 		case OR:
-			return eval_expr(e->or.lhs, x) || eval_expr(e->or.rhs, x);
+			{
+				int e1 = eval_expr(e->and.lhs, x);
+				int e2 = eval_expr(e->and.rhs, x);
+				return e1 || e2;
+			}
 
 		case PAREN:
 			return eval_expr(e->paren.eval, x);

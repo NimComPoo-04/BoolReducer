@@ -40,10 +40,14 @@ expr_t *parse_expr(const char *str, size_t length);
 void debug_print_expr(expr_t *e, int depth);
 void delete_expr(expr_t *e);
 
+// expr_t *init_expr(int type, ...);
+
 // Evaluation of Expression
 //
 typedef struct
 {
+	uint32_t value;
+	int count;
 	char vars[26];
 } env_t;
 
