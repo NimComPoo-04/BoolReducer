@@ -152,8 +152,7 @@ static expr_t *__parse_expr(expr_t *e,
 	}
 
 	fprintf(stderr, "Undefined Token (%c : %d) Encountered!\n", c, c);
-	// return init_expr(ERROR);
-	exit(1);
+	return e;
 }
 
 void debug_print_expr_oneline(expr_t *e)

@@ -10,6 +10,8 @@ typedef struct
 	char vars[26]; // An array filled with the variables in the order of
 		       // discovery, useful for printing? idk
 	char *min_terms; // Caching the function
+	
+	int tatcontra; // is tautology or contradiction
 } func_t;
 
 func_t create_func(expr_t *exp, env_t env);
