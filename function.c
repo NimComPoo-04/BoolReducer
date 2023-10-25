@@ -31,7 +31,7 @@ func_t create_func(expr_t *exp, env_t env)
 
 void debug_print_func(func_t *f)
 {
-	printf(" == Truth Table == \n\n");
+	printf("\n == Truth Table == \n\n");
 
 	for(int i = 0; i < f->count; i++)
 		printf(" %c |", f->vars[i]);
@@ -47,41 +47,15 @@ void debug_print_func(func_t *f)
 	}
 }
 
-term_t *generate_singleton_terms(func_t *f)
+/*
+expr_t *reduce_func(func_t *f)
 {
-	term_t *head = NULL;
-
-	for(uint32_t i = 0; i < (1 << f->count); i++)
-	{
-		if(f->min_terms[i])
-		{
-			term_t *h = malloc(sizeof(term_t));
-			h->values = i;
-			h->active_vars = (1 << f->count) - 1;
-			h->next = NULL;
-
-			if(head == NULL)
-				head = h;
-			else
-			{
-				h->next = head;
-				head = h;
-			}
-		}
-	}
-
-	return head;
+	(void)f;
+	return NULL;
 }
+*/
 
-void debug_print_terms(term_t *t)
+void delete_function(func_t *f)
 {
-	if(!t) return;
-	printf("%d : %d\n", t->active_vars, t->values);
-	puts("");
-	debug_print_terms(t->next);
-}
-
-int reduce_terms(func_t *f, term_t *t, int level)
-{
-	if(!t) return 0;
+	free(f->min_terms);
 }

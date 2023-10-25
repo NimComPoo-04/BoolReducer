@@ -55,6 +55,10 @@ static expr_t *init_expr(int type, ...)
 			e->type = PAREN;
 			e->paren.eval = va_arg(v, expr_t *);
 			break;
+
+		case ERROR:
+			e->type = ERROR;
+			break;
 	}
 
 	va_end(v);
@@ -148,7 +152,47 @@ static expr_t *__parse_expr(expr_t *e,
 	}
 
 	fprintf(stderr, "Undefined Token (%c : %d) Encountered!\n", c, c);
+	// return init_expr(ERROR);
 	exit(1);
+}
+
+void debug_print_expr_oneline(expr_t *e)
+{
+	if(!e) return;
+
+	switch(e->type)
+	{
+		case VARIABLE:
+			printf("%c", e->variable);
+			break;
+
+		case LITERAL:
+			printf("%c", e->literal);
+			break;
+
+		case AND:
+			debug_print_expr_oneline(e->and.lhs);
+			printf(" . ");
+			debug_print_expr_oneline(e->and.rhs);
+			break;
+
+		case OR:
+			debug_print_expr_oneline(e->or.lhs);
+			printf(" + ");
+			debug_print_expr_oneline(e->or.rhs);
+			break;
+
+		case NOT:
+			debug_print_expr_oneline(e->not.lhs);
+			printf("'");
+			break;
+
+		case PAREN:
+			printf("( ");
+			debug_print_expr_oneline(e->paren.eval);
+			printf(" )");
+			break;
+	}
 }
 
 const char SPACES[] = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";

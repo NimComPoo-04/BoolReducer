@@ -10,7 +10,8 @@ enum
 	AND,		// .
 	OR,		// +
 	NOT,		// '
-	PAREN		// (
+	PAREN,		// (
+	ERROR
 };
 
 typedef struct expr_t
@@ -38,6 +39,7 @@ typedef struct expr_t
 
 expr_t *parse_expr(const char *str, size_t length);
 void debug_print_expr(expr_t *e, int depth);
+void debug_print_expr_oneline(expr_t *d);
 void delete_expr(expr_t *e);
 
 // Evaluation of Expression

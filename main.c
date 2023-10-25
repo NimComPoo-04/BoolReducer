@@ -5,11 +5,23 @@
 #include "function.h"
 
 // const char test[] = "(x' . Y + x . Y')' . Z + (X' . Y + X . Y') . Z'";
-const char test[] = "A . B + A . C + A . B";
+// const char test[] = "A. B . C  + A . B . C' + A . B' . C";
+
+/*
+ * ABC + ABC' + AB'C
+ * AB + AC
+ * */
+
+char buffer[1024] = {0};
 
 int main(void)
 {
-	expr_t *e = parse_expr(test, sizeof test - 1);
+	printf("Enter an Boolean Expression: ");
+	fgets(buffer, sizeof buffer, stdin);
+
+	expr_t *e = parse_expr(buffer, strlen(buffer) - 1);
+
+	puts("== DEBUG ==");
 	debug_print_expr(e, 0);
 
 	env_t huh = {0};
@@ -18,11 +30,19 @@ int main(void)
 	func_t f = create_func(e, huh);
 	debug_print_func(&f);
 
-	/*
-	term_t *t = generate_singleton_terms(&f);
-	debug_print_terms(t);
-	*/
+	expr_t *d = reduce_func(&f);
 
+	puts("== DEBUG ==");
+	debug_print_expr(d, 0);
+
+	puts("== OUTPUT ==");
+	printf("%.*s = ", strlen(buffer) - 1, buffer);
+	debug_print_expr_oneline(d);
+	printf("\n");
+
+	delete_function(&f);
 	delete_expr(e);
+	delete_expr(d);
+
 	return 0;
 }
