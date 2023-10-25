@@ -18,7 +18,7 @@ char buffer[1024] = {0};
 int main(void)
 {
 	printf("\nEnter an Boolean Expression: ");
-	scanf("%[^\n]", buffer, stdin);
+	scanf("%[^\n]", buffer);
 
 	expr_t *e = parse_expr(buffer, strlen(buffer));
 
@@ -34,20 +34,12 @@ int main(void)
 
 	debug_print_func(&f);
 
-	/*
-	term_list_t t = terms_copy(&f);
-	debug_print_term_list(t);
-
-	puts("\n== REDUCED TERMS ==");
-	reduce_term_list(&t);
-	*/
-
 	expr_t *d = reduce_func(&f);
 
 	puts("\n== OUTPUT EXPRESSION ==\n");
 	debug_print_expr(d, 0);
 
-	puts("\n== REDUCED EXPRESSION ==\n");
+	printf("\n== REDUCED EXPRESSION: ");
 	debug_print_expr_oneline(d);
 	puts("\n");
 

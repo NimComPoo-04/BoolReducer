@@ -21,7 +21,7 @@ term_list_t terms_copy(func_t *f);
 int reduce_term(term_list_t *a, term_t t, term_list_t *b);
 term_list_t reduce_term_list(term_list_t *a);
 
-void debug_print_term(term_t t);
-void debug_print_term_list(term_list_t t);
+void debug_print_term(term_t t, func_t *df);
+void debug_print_term_list(term_list_t t, func_t *f);
 
 #endif

@@ -41,7 +41,7 @@ func_t create_func(expr_t *exp, env_t env)
 
 void debug_print_func(func_t *f)
 {
-	printf("\n == TRUTH TABLES == \n\n");
+	printf("\n== TRUTH TABLES == \n\n");
 
 	for(int i = 0; i < f->count; i++)
 		printf(" %c |", f->vars[i]);
@@ -73,13 +73,13 @@ expr_t *reduce_func(func_t *f)
 
 	// TODO: remove FOR DEBUG
 	printf("\n== UNREDUCED ==");
-	debug_print_term_list(t);
+	debug_print_term_list(t, f);
 
 	t = reduce_term_list(&t);
 
 	// TODO: remove FOR DEBUG
 	printf("\n== REDUCED ==");
-	debug_print_term_list(t);
+	debug_print_term_list(t, f);
 
 	char *buffer = calloc(sizeof(char), 1024);
 	int len = 0;
@@ -90,7 +90,7 @@ expr_t *reduce_func(func_t *f)
 
 	int ct = 0;
 
-	for(int i = 0; i < t.count; i++)
+	for(unsigned i = 0; i < t.count; i++)
 	{
 		term_t x = t.terms[i];
 		int k = 0;
@@ -128,7 +128,7 @@ expr_t *reduce_func(func_t *f)
 	len--;
 	buffer[len] = 0;
 
-	printf("\n== EXPR: %s\n", buffer);
+	// printf("\n== EXPR: %s\n", buffer);
 
 	expr_t *e = parse_expr(buffer, len);
 	free(buffer);

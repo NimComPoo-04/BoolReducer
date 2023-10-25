@@ -13,7 +13,7 @@ term_list_t terms_copy(func_t *f)
 
 	uint32_t active = (1 << f->count) - 1;
 
-	for(uint32_t i = 0; i < 1 << f->count; i++)
+	for(uint32_t i = 0; i < (unsigned)(1 << f->count); i++)
 	{
 		if(f->min_terms[i] == 1)
 		{
@@ -46,10 +46,10 @@ static term_t deactivate(term_t a, term_t b)
 	return t;
 }
 
-static int term_list_size = 0;
+static size_t term_list_size = 0;
 int set_add(term_list_t *t, term_t g)
 {
-	for(int i = 0; i < t->count; i++)
+	for(unsigned i = 0; i < t->count; i++)
 	{
 		if(t->terms[i].values == g.values && t->terms[i].actives == g.actives)
 			return 0;
@@ -95,7 +95,7 @@ term_list_t reduce_term_list(term_list_t *a)
 		b.terms = calloc(sizeof(term_t), a->count);
 		term_list_size = a->count;
 
-		for(int i = 0; i < a->count; i++)
+		for(unsigned i = 0; i < a->count; i++)
 		{
 			if(!reduce_term(a, a->terms[i], &b))
 			{
@@ -116,18 +116,18 @@ term_list_t reduce_term_list(term_list_t *a)
 	return x;
 }
 
-void debug_print_term(term_t k)
+void debug_print_term(term_t k, func_t *df)
 {
-	char f = 'A';
+	int f = 0;
 
-	while(k.actives)
+	for(int i = 0; i < df->count; i++)
 	{
 		if(k.actives & 1)
 		{
 			if((k.values & 1) == 0)
-				printf("%c' ", f);
+				printf("%c' ", df->vars[f]);
 			else
-				printf("%c  ", f);
+				printf("%c  ", df->vars[f]);
 		}
 		else
 			printf("-  ");
@@ -138,12 +138,12 @@ void debug_print_term(term_t k)
 	}
 }
 
-void debug_print_term_list(term_list_t t)
+void debug_print_term_list(term_list_t t, func_t *df)
 {
 	puts("\n== TERMS ==\n");
-	for(int i = 0; i < t.count; i++)
+	for(unsigned i = 0; i < t.count; i++)
 	{
-		debug_print_term(t.terms[i]);
+		debug_print_term(t.terms[i], df);
 		puts("");
 	}
 }
