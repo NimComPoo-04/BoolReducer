@@ -65,6 +65,17 @@ static expr_t *init_expr(int type, ...)
 	return e;
 }
 
+static void no_space_op(expr_t *a, expr_t *b)
+{
+	if((a->type == AND || a->type == OR) &&
+			(a->and.rhs->type != AND && a->and.rhs->type != OR))
+	{
+		a->and.rhs = init_expr(AND, a->and.rhs, b);
+	}
+	else
+		no_space_op(a->and.rhs, b);
+}
+
 void delete_expr(expr_t *e)
 {
 	if(!e) return;
@@ -96,7 +107,17 @@ static expr_t *__parse_paren(const char *str, size_t length, size_t *current)
 			break;
 		*current -= 1;
 
-		head = __parse_expr(head, str, length, current);
+		expr_t *e = __parse_expr(head, str, length, current);
+
+		if(head && (e->type == VARIABLE || e->type == LITERAL || e->type == PAREN))
+		{
+			if(head->type == VARIABLE || head->type == LITERAL || head->type == PAREN)
+				head = init_expr(AND, head, e);
+			else
+				no_space_op(head, e);
+		}
+		else
+			head = e;
 	}
 
 	return head;
@@ -126,7 +147,7 @@ static expr_t *__parse_expr(expr_t *e,
 
 				case OR:
 					*current -= 1; // unreading a token
-					e->and.rhs = __parse_expr(e->and.rhs, str, length, current);
+					e->or.rhs = __parse_expr(e->or.rhs, str, length, current);
 					return e;
 
 				default:
@@ -242,7 +263,16 @@ expr_t *parse_expr(const char *str, size_t length)
 
 	do
 	{
-		head = __parse_expr(head, str, length, &current);
+		expr_t *tmp = __parse_expr(head, str, length, &current);
+		if(head && (tmp->type == VARIABLE || tmp->type == LITERAL || tmp->type == PAREN))
+		{
+			if(head->type == VARIABLE || head->type == LITERAL || head->type == PAREN)
+				head = init_expr(AND, head, tmp);
+			else
+				no_space_op(head, tmp);
+		}
+		else
+			head = tmp;
 	} while(current < length);
 
 	return head;

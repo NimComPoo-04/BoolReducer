@@ -7,22 +7,25 @@ enum
 {
 	VARIABLE,	// all alphabets allowed, case insensetive
 	LITERAL,	// 0 1
+
 	AND,		// .
 	OR,		// +
 	NOT,		// '
+
 	PAREN,		// (
 	ERROR
 };
 
 typedef struct expr_t
 {
+	int complete;
 	int type;
 	union
 	{
 		struct {
 			struct expr_t *lhs;	// left hand side of the op
 			struct expr_t *rhs;	// right hand side of the op
-		} and, or;
+		} and, or, nand, nor, xor, xnor;
 
 		struct {
 			struct expr_t *lhs;	// only has a left hand side
