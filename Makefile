@@ -16,7 +16,7 @@ obj/%.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $^
 
 clean:
-	rm -rf *.exe obj
+	rm -rf $(shell ls bool*) obj
 
 run:
-	./bool.exe
+	./bool

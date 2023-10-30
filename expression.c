@@ -11,8 +11,10 @@ static char next_token(const char *str, size_t length, size_t *current)
 		return 0;
 	while(*current < length && isspace(str[*current]))
 		*current += 1;
+
 	char c = str[*current];
 	*current += 1;
+
 	return c;
 }
 
@@ -102,10 +104,11 @@ static expr_t *__parse_paren(const char *str, size_t length, size_t *current)
 
 	while(*current < length)
 	{
+		int pst = *current;
 		c = next_token(str, length, current);
 		if(c == ')')
-			break;
-		*current -= 1;
+			return head;
+		*current = pst;
 
 		expr_t *e = __parse_expr(head, str, length, current);
 
@@ -120,7 +123,8 @@ static expr_t *__parse_paren(const char *str, size_t length, size_t *current)
 			head = e;
 	}
 
-	return head;
+	fprintf(stderr, "')' is expected at the end of expression.\n");
+	exit(1);
 }
 
 static expr_t *__parse_expr(expr_t *e,
@@ -166,14 +170,14 @@ static expr_t *__parse_expr(expr_t *e,
 			}
 
 		case '+':
-			return init_expr(OR, e, __parse_expr(e, str, length, current));
+				return init_expr(OR, e, __parse_expr(e, str, length, current));
 
 		case '(':
 			return init_expr(PAREN, __parse_paren(str, length, current));
 	}
 
 	fprintf(stderr, "Undefined Token (%c : %d) Encountered!\n", c, c);
-	return e;
+	exit(1);
 }
 
 void debug_print_expr_oneline(expr_t *e)
@@ -192,7 +196,7 @@ void debug_print_expr_oneline(expr_t *e)
 
 		case AND:
 			debug_print_expr_oneline(e->and.lhs);
-			printf(" . ");
+//			printf(" . ");
 			debug_print_expr_oneline(e->and.rhs);
 			break;
 
@@ -282,7 +286,10 @@ expr_t *parse_expr(const char *str, size_t length)
 int eval_expr(expr_t *e, env_t *x)
 {
 	if(!e)
-		return -1;
+	{
+		fprintf(stderr, "Error during evaluation.\n");
+		exit(1);
+	}
 
 	switch(e->type)
 	{

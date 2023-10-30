@@ -6,9 +6,9 @@ The expression must be written in the form
 
 A + B . C' + D + 0 + 1
 
-* ' => not
-* + => or
-* . => and
+* `'` => not
+* `+` => or
+* `.` => and
 
 All variables are single charactered, and they are case insensetive.
 

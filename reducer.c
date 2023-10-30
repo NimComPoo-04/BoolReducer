@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <math.h>
 #include <memory.h>
+#include <string.h>
+#include <assert.h>
 
 #include "reducer.h"
 
@@ -82,7 +84,7 @@ int reduce_term(term_list_t *a, term_t t, term_list_t *b)
 	return bi;
 }
 
-term_list_t reduce_term_list(term_list_t *a)
+term_list_t reduce_term_list(term_list_t *a, func_t *f)
 {
 	term_list_t x = {0};
 	x.terms = calloc(sizeof(term_t), a->count);
@@ -100,11 +102,29 @@ term_list_t reduce_term_list(term_list_t *a)
 			if(!reduce_term(a, a->terms[i], &b))
 			{
 				x.terms[x.count++] = a->terms[i];
-//				debug_print_term(a->terms[i]);
+//				debug_print_term(a->terms[i], f);
 //				puts("");
 			}
 			else
 				t++;
+		}
+
+		if(b.count > 0)
+		{
+			printf("=> ");  
+
+			expr_t *tmp = reducer_create_expr(&b, f, 0);
+			debug_print_expr_oneline(tmp);
+			delete_expr(tmp);
+
+			if(x.count > 0)
+			{
+				printf(" + ");
+				tmp = reducer_create_expr(&x, f, 0);
+				debug_print_expr_oneline(tmp);
+				delete_expr(tmp);
+			}
+			puts("");
 		}
 
 		free(a->terms);
@@ -146,4 +166,62 @@ void debug_print_term_list(term_list_t t, func_t *df)
 		debug_print_term(t.terms[i], df);
 		puts("");
 	}
+}
+
+expr_t *reducer_create_expr(term_list_t *t, func_t *f, int print_it)
+{
+	char *buffer = calloc(sizeof(char), 1024);
+	int len = 0;
+	int size = 1024;
+
+	char tmp[f->count * 3 + 1];
+	memset(tmp, 0, sizeof tmp);
+
+	int ct = 0;
+
+	for(unsigned i = 0; i < t->count; i++)
+	{
+		term_t x = t->terms[i];
+		int k = 0;
+		ct = 0;
+
+		while(x.actives)
+		{
+
+			if(x.actives & 1)
+			{
+				tmp[ct++] = f->vars[k];
+				if((x.values & 1) == 0)
+					tmp[ct++] = '\'';
+				tmp[ct++] = '.';
+			}
+
+			k++;
+			x.actives >>= 1;
+			x.values  >>= 1;
+		}
+
+		ct--;
+		tmp[ct++] = '+';
+
+		if(len + ct >= size)
+		{
+			size += 1024;
+			buffer = realloc(buffer, size);
+		}
+
+		strncat(buffer + len, tmp, ct);
+		len += ct;
+	}
+
+	len--;
+	buffer[len] = 0;
+
+	if(print_it)
+		printf("  %s", buffer);
+
+	expr_t *e = parse_expr(buffer, len);
+	free(buffer);
+
+	return e;
 }

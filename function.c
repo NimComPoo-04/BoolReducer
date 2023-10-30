@@ -74,64 +74,21 @@ expr_t *reduce_func(func_t *f)
 	// TODO: remove FOR DEBUG
 	printf("\n== UNREDUCED ==");
 	debug_print_term_list(t, f);
+	puts("");
 
-	t = reduce_term_list(&t);
+	// FIXME: this is a haenous warcrime, change it. no need to heap allocate anything
+	printf("\n== STEPS [ Idempotence, Distributive ] ==\n\n");
+	expr_t *e = reducer_create_expr(&t, f, 0);
+	printf("   ");
+	debug_print_expr_oneline(e);
+	puts("");
+	delete_expr(e);
+	t = reduce_term_list(&t, f);
+	puts("");
 
 	// TODO: remove FOR DEBUG
 	printf("\n== REDUCED ==");
 	debug_print_term_list(t, f);
 
-	char *buffer = calloc(sizeof(char), 1024);
-	int len = 0;
-	int size = 1024;
-
-	char tmp[f->count * 3 + 1];
-	memset(tmp, 0, sizeof tmp);
-
-	int ct = 0;
-
-	for(unsigned i = 0; i < t.count; i++)
-	{
-		term_t x = t.terms[i];
-		int k = 0;
-		ct = 0;
-
-		while(x.actives)
-		{
-
-			if(x.actives & 1)
-			{
-				tmp[ct++] = f->vars[k];
-				if((x.values & 1) == 0)
-					tmp[ct++] = '\'';
-				tmp[ct++] = '.';
-			}
-
-			k++;
-			x.actives >>= 1;
-			x.values  >>= 1;
-		}
-
-		ct--;
-		tmp[ct++] = '+';
-
-		if(len >= size)
-		{
-			size += len;
-			buffer = realloc(buffer, size);
-		}
-
-		strncat(buffer + len, tmp, ct);
-		len += ct;
-	}
-
-	len--;
-	buffer[len] = 0;
-
-	// printf("\n== EXPR: %s\n", buffer);
-
-	expr_t *e = parse_expr(buffer, len);
-	free(buffer);
-
-	return e;
+	return reducer_create_expr(&t, f, 0);
 }

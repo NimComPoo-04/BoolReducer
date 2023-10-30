@@ -18,7 +18,6 @@ enum
 
 typedef struct expr_t
 {
-	int complete;
 	int type;
 	union
 	{
@@ -51,7 +50,7 @@ typedef struct
 {
 	uint32_t value;	// Values of the different variables stored as bits
 	int count;	// holds the number of variables in system
-	char vars[26];  // hashmap, index is offset by 'A',
+	signed char vars[26];  // hashmap, index is offset by 'A',
 			// stores the order of discovery
 } env_t;
 
