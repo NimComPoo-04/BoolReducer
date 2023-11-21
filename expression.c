@@ -270,7 +270,7 @@ expr_t *parse_expr(const char *str, size_t length)
 		expr_t *tmp = __parse_expr(head, str, length, &current);
 		if(head && (tmp->type == VARIABLE || tmp->type == LITERAL || tmp->type == PAREN))
 		{
-			if(head->type == VARIABLE || head->type == LITERAL || head->type == PAREN)
+			if(head->type == VARIABLE || head->type == LITERAL || head->type == PAREN || head->type == NOT)
 				head = init_expr(AND, head, tmp);
 			else
 				no_space_op(head, tmp);
