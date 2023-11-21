@@ -114,7 +114,7 @@ static expr_t *__parse_paren(const char *str, size_t length, size_t *current)
 
 		if(head && (e->type == VARIABLE || e->type == LITERAL || e->type == PAREN))
 		{
-			if(head->type == VARIABLE || head->type == LITERAL || head->type == PAREN)
+			if(head->type == VARIABLE || head->type == LITERAL || head->type == PAREN || head->type == NOT)
 				head = init_expr(AND, head, e);
 			else
 				no_space_op(head, e);
